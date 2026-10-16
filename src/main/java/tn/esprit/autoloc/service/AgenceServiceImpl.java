@@ -1,23 +1,61 @@
 package tn.esprit.autoloc.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Agence;
+import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IAgenceRepository;
 
+import java.util.List;
+
 @Service
-public class AgenceServiceImpl extends AbstractCrudService<Agence> implements IAgenceService {
+@RequiredArgsConstructor
+public class AgenceServiceImpl implements IAgenceService {
 
-    public AgenceServiceImpl(IAgenceRepository repository) {
-        super(repository);
+    private final IAgenceRepository agenceRepository;
+
+    @Override
+    public Agence create(Agence agence) {
+        if (agence.getIdAgence() != null) {
+            throw new IllegalArgumentException("Une nouvelle agence ne doit pas avoir d'identifiant");
+        }
+        validate(agence);
+        return agenceRepository.save(agence);
     }
 
     @Override
-    protected void assignId(Agence agence, Long id) {
-        agence.setIdAgence(id);
+    public Agence findById(Long id) {
+        return agenceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Agence", id));
     }
 
     @Override
-    protected String entityName() {
-        return "Agence";
+    public List<Agence> findAll() {
+        return agenceRepository.findAll();
+    }
+
+    @Override
+    public Agence update(Long id, Agence agence) {
+        validate(agence);
+        Agence existante = findById(id);
+        existante.setNom(agence.getNom());
+        existante.setVille(agence.getVille());
+        existante.setAdresse(agence.getAdresse());
+        existante.setTelephone(agence.getTelephone());
+        return agenceRepository.save(existante);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!agenceRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Agence", id);
+        }
+        agenceRepository.deleteById(id);
+    }
+
+    private void validate(Agence agence) {
+        if (agence.getNom() == null || agence.getNom().isBlank()) {
+            throw new IllegalArgumentException("Le nom de l'agence est obligatoire");
+        }
     }
 }

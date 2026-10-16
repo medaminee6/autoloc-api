@@ -1,23 +1,64 @@
 package tn.esprit.autoloc.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Employe;
+import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IEmployeRepository;
 
+import java.util.List;
+
 @Service
-public class EmployeServiceImpl extends AbstractCrudService<Employe> implements IEmployeService {
+@RequiredArgsConstructor
+public class EmployeServiceImpl implements IEmployeService {
 
-    public EmployeServiceImpl(IEmployeRepository repository) {
-        super(repository);
+    private final IEmployeRepository employeRepository;
+
+    @Override
+    public Employe create(Employe employe) {
+        if (employe.getIdEmploye() != null) {
+            throw new IllegalArgumentException("Un nouvel employe ne doit pas avoir d'identifiant");
+        }
+        validate(employe);
+        return employeRepository.save(employe);
     }
 
     @Override
-    protected void assignId(Employe employe, Long id) {
-        employe.setIdEmploye(id);
+    public Employe findById(Long id) {
+        return employeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employe", id));
     }
 
     @Override
-    protected String entityName() {
-        return "Employe";
+    public List<Employe> findAll() {
+        return employeRepository.findAll();
+    }
+
+    @Override
+    public Employe update(Long id, Employe employe) {
+        validate(employe);
+        Employe existant = findById(id);
+        existant.setNom(employe.getNom());
+        existant.setPrenom(employe.getPrenom());
+        existant.setRole(employe.getRole());
+        existant.setAgence(employe.getAgence());
+        return employeRepository.save(existant);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!employeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Employe", id);
+        }
+        employeRepository.deleteById(id);
+    }
+
+    private void validate(Employe employe) {
+        if (employe.getNom() == null || employe.getNom().isBlank()) {
+            throw new IllegalArgumentException("Le nom de l'employe est obligatoire");
+        }
+        if (employe.getRole() == null) {
+            throw new IllegalArgumentException("Le role de l'employe est obligatoire");
+        }
     }
 }

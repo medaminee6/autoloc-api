@@ -1,23 +1,58 @@
 package tn.esprit.autoloc.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Equipement;
+import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IEquipementRepository;
 
+import java.util.List;
+
 @Service
-public class EquipementServiceImpl extends AbstractCrudService<Equipement> implements IEquipementService {
+@RequiredArgsConstructor
+public class EquipementServiceImpl implements IEquipementService {
 
-    public EquipementServiceImpl(IEquipementRepository repository) {
-        super(repository);
+    private final IEquipementRepository equipementRepository;
+
+    @Override
+    public Equipement create(Equipement equipement) {
+        if (equipement.getIdEquipement() != null) {
+            throw new IllegalArgumentException("Un nouvel equipement ne doit pas avoir d'identifiant");
+        }
+        validate(equipement);
+        return equipementRepository.save(equipement);
     }
 
     @Override
-    protected void assignId(Equipement equipement, Long id) {
-        equipement.setIdEquipement(id);
+    public Equipement findById(Long id) {
+        return equipementRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipement", id));
     }
 
     @Override
-    protected String entityName() {
-        return "Equipement";
+    public List<Equipement> findAll() {
+        return equipementRepository.findAll();
+    }
+
+    @Override
+    public Equipement update(Long id, Equipement equipement) {
+        validate(equipement);
+        Equipement existant = findById(id);
+        existant.setLibelle(equipement.getLibelle());
+        return equipementRepository.save(existant);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!equipementRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Equipement", id);
+        }
+        equipementRepository.deleteById(id);
+    }
+
+    private void validate(Equipement equipement) {
+        if (equipement.getLibelle() == null || equipement.getLibelle().isBlank()) {
+            throw new IllegalArgumentException("Le libelle de l'equipement est obligatoire");
+        }
     }
 }

@@ -13,6 +13,7 @@ import tn.esprit.autoloc.domain.Reservation;
 import tn.esprit.autoloc.domain.StatutReservation;
 import tn.esprit.autoloc.domain.StatutVehicule;
 import tn.esprit.autoloc.domain.Vehicule;
+import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IAgenceRepository;
 import tn.esprit.autoloc.repository.IClientRepository;
 import tn.esprit.autoloc.repository.IReservationRepository;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -59,7 +61,8 @@ class RepositoryAndServiceTests {
 
         Vehicule created = vehiculeService.create(vehicule);
         assertThat(created.getIdVehicule()).isNotNull();
-        assertThat(vehiculeService.findById(created.getIdVehicule())).isPresent();
+        assertThat(vehiculeService.findById(created.getIdVehicule()).getIdVehicule())
+                .isEqualTo(created.getIdVehicule());
 
         created.setModele("208");
         Vehicule updated = vehiculeService.update(created.getIdVehicule(), created);
@@ -67,8 +70,10 @@ class RepositoryAndServiceTests {
         assertThat(vehiculeService.findAll()).extracting(Vehicule::getIdVehicule)
                 .contains(created.getIdVehicule());
 
-        vehiculeService.deleteById(created.getIdVehicule());
-        assertThat(vehiculeService.findById(created.getIdVehicule())).isEmpty();
+        Long vehiculeId = created.getIdVehicule();
+        vehiculeService.deleteById(vehiculeId);
+        assertThatThrownBy(() -> vehiculeService.findById(vehiculeId))
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test
@@ -93,7 +98,8 @@ class RepositoryAndServiceTests {
 
         Contrat created = contratService.create(contrat);
         assertThat(created.getIdContrat()).isNotNull();
-        assertThat(contratService.findById(created.getIdContrat())).isPresent();
+        assertThat(contratService.findById(created.getIdContrat()).getIdContrat())
+                .isEqualTo(created.getIdContrat());
 
         created.setMontantTotal(new BigDecimal("260.00"));
         Contrat updated = contratService.update(created.getIdContrat(), created);
@@ -101,8 +107,10 @@ class RepositoryAndServiceTests {
         assertThat(contratService.findAll()).extracting(Contrat::getIdContrat)
                 .contains(created.getIdContrat());
 
-        contratService.deleteById(created.getIdContrat());
-        assertThat(contratService.findById(created.getIdContrat())).isEmpty();
+        Long contratId = created.getIdContrat();
+        contratService.deleteById(contratId);
+        assertThatThrownBy(() -> contratService.findById(contratId))
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     private Agence createAgence() {
