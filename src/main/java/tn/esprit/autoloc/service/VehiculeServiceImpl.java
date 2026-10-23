@@ -2,8 +2,10 @@ package tn.esprit.autoloc.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.autoloc.domain.Agence;
 import tn.esprit.autoloc.domain.Vehicule;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
+import tn.esprit.autoloc.repository.IAgenceRepository;
 import tn.esprit.autoloc.repository.IVehiculeRepository;
 
 import java.math.BigDecimal;
@@ -14,6 +16,7 @@ import java.util.List;
 public class VehiculeServiceImpl implements IVehiculeService {
 
     private final IVehiculeRepository vehiculeRepository;
+    private final IAgenceRepository agenceRepository;
 
     @Override
     public Vehicule create(Vehicule vehicule) {
@@ -21,6 +24,7 @@ public class VehiculeServiceImpl implements IVehiculeService {
             throw new IllegalArgumentException("Un nouveau vehicule ne doit pas avoir d'identifiant");
         }
         validate(vehicule);
+        vehicule.setAgence(resolveAgence(vehicule));
         return vehiculeRepository.save(vehicule);
     }
 
@@ -45,7 +49,7 @@ public class VehiculeServiceImpl implements IVehiculeService {
         existant.setCategorie(vehicule.getCategorie());
         existant.setTarifJournalier(vehicule.getTarifJournalier());
         existant.setStatut(vehicule.getStatut());
-        existant.setAgence(vehicule.getAgence());
+        existant.setAgence(resolveAgence(vehicule));
         return vehiculeRepository.save(existant);
     }
 
@@ -62,5 +66,14 @@ public class VehiculeServiceImpl implements IVehiculeService {
                 && vehicule.getTarifJournalier().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Le tarif journalier ne peut pas etre negatif");
         }
+    }
+
+    private Agence resolveAgence(Vehicule vehicule) {
+        if (vehicule.getAgence() == null || vehicule.getAgence().getIdAgence() == null) {
+            throw new IllegalArgumentException("L'agence du vehicule est obligatoire");
+        }
+        Long agenceId = vehicule.getAgence().getIdAgence();
+        return agenceRepository.findById(agenceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Agence", agenceId));
     }
 }

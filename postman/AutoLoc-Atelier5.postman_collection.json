@@ -1,0 +1,551 @@
+{
+  "info": {
+    "_postman_id": "6b091ec8-8cc1-4a79-b846-atelier5autoloc",
+    "name": "AutoLoc - Atelier 5",
+    "description": "Tests CRUD de Agence, Client et Vehicule. Executer la collection dans l'ordre pendant que l'application tourne.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081/api"
+    },
+    {
+      "key": "agenceId",
+      "value": ""
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "vehiculeAgenceId",
+      "value": ""
+    },
+    {
+      "key": "vehiculeId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Agences",
+      "item": [
+        {
+          "name": "01 - Creer une agence - 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Agence Tunis Centre\",\n  \"ville\": \"Tunis\",\n  \"adresse\": \"Avenue Habib Bourguiba\",\n  \"telephone\": \"71000000\"\n}"
+            },
+            "url": "{{baseUrl}}/agences"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"agenceId\", pm.response.json().idAgence);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Lister les agences - 200",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/agences"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Reponse tableau JSON\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Consulter une agence - 200",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/agences/{{agenceId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Bon identifiant\", () => pm.expect(String(pm.response.json().idAgence)).to.eql(pm.collectionVariables.get(\"agenceId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Modifier une agence - 200",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Agence Tunis Lac\",\n  \"ville\": \"Tunis\",\n  \"adresse\": \"Les Berges du Lac\",\n  \"telephone\": \"71111111\"\n}"
+            },
+            "url": "{{baseUrl}}/agences/{{agenceId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Nom modifie\", () => pm.expect(pm.response.json().nom).to.eql(\"Agence Tunis Lac\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Agence invalide - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"\",\n  \"ville\": \"Tunis\"\n}"
+            },
+            "url": "{{baseUrl}}/agences"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Agence inexistante - 404",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/agences/999999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Supprimer une agence - 204",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/agences/{{agenceId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 204\", () => pm.response.to.have.status(204));",
+                  "pm.collectionVariables.unset(\"agenceId\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "01 - Creer un client - 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Ben Salah\",\n  \"prenom\": \"Amine\",\n  \"email\": \"amine.bensalah@example.com\",\n  \"telephone\": \"22123456\",\n  \"numPermis\": \"TN-123456\",\n  \"dateInscription\": \"2026-10-23\"\n}"
+            },
+            "url": "{{baseUrl}}/clients"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"clientId\", pm.response.json().idClient);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Lister les clients - 200",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/clients"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Consulter un client - 200",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/clients/{{clientId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Modifier un client - 200",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Ben Salah\",\n  \"prenom\": \"Amine\",\n  \"email\": \"amine.updated@example.com\",\n  \"telephone\": \"22999999\",\n  \"numPermis\": \"TN-123456\",\n  \"dateInscription\": \"2026-10-23\"\n}"
+            },
+            "url": "{{baseUrl}}/clients/{{clientId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Email modifie\", () => pm.expect(pm.response.json().email).to.eql(\"amine.updated@example.com\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Client invalide - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Ben Salah\",\n  \"email\": \"\"\n}"
+            },
+            "url": "{{baseUrl}}/clients"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Client inexistant - 404",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/clients/999999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Supprimer un client - 204",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/clients/{{clientId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 204\", () => pm.response.to.have.status(204));",
+                  "pm.collectionVariables.unset(\"clientId\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vehicules",
+      "item": [
+        {
+          "name": "00 - Creer l'agence du vehicule - 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Agence Vehicules\",\n  \"ville\": \"Ariana\",\n  \"adresse\": \"Centre Urbain Nord\",\n  \"telephone\": \"70000000\"\n}"
+            },
+            "url": "{{baseUrl}}/agences"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"vehiculeAgenceId\", pm.response.json().idAgence);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01 - Creer un vehicule - 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"immatriculation\": \"{{$randomInt}}-TUN-26\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 120.00,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": { \"idAgence\": {{vehiculeAgenceId}} }\n}"
+            },
+            "url": "{{baseUrl}}/vehicules"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"vehiculeId\", pm.response.json().idVehicule);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 - Lister les vehicules - 200",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicules"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 - Consulter un vehicule - 200",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicules/{{vehiculeId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 - Modifier un vehicule - 200",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"immatriculation\": \"{{$randomInt}}-TUN-26\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio V\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 135.00,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": { \"idAgence\": {{vehiculeAgenceId}} }\n}"
+            },
+            "url": "{{baseUrl}}/vehicules/{{vehiculeId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Tarif modifie\", () => pm.expect(pm.response.json().tarifJournalier).to.eql(135));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 - Vehicule invalide - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"immatriculation\": \"BAD-TARIF\",\n  \"marque\": \"Test\",\n  \"modele\": \"Test\",\n  \"categorie\": \"SUV\",\n  \"tarifJournalier\": -1,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": { \"idAgence\": {{vehiculeAgenceId}} }\n}"
+            },
+            "url": "{{baseUrl}}/vehicules"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 - Vehicule inexistant - 404",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/vehicules/999999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 - Supprimer un vehicule - 204",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/vehicules/{{vehiculeId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 204\", () => pm.response.to.have.status(204));",
+                  "pm.collectionVariables.unset(\"vehiculeId\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 - Supprimer l'agence du vehicule - 204",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/agences/{{vehiculeAgenceId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Statut 204\", () => pm.response.to.have.status(204));",
+                  "pm.collectionVariables.unset(\"vehiculeAgenceId\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
