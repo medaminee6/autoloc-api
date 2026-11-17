@@ -17,8 +17,11 @@ import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IAgenceRepository;
 import tn.esprit.autoloc.repository.IClientRepository;
 import tn.esprit.autoloc.repository.IReservationRepository;
+import tn.esprit.autoloc.repository.IVehiculeRepository;
 import tn.esprit.autoloc.service.IContratService;
 import tn.esprit.autoloc.service.IVehiculeService;
+import tn.esprit.autoloc.web.dto.VehiculeRequestDto;
+import tn.esprit.autoloc.web.dto.VehiculeResponseDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,6 +47,9 @@ class RepositoryAndServiceTests {
     private IReservationRepository reservationRepository;
 
     @Autowired
+    private IVehiculeRepository vehiculeRepository;
+
+    @Autowired
     private IVehiculeService vehiculeService;
 
     @Autowired
@@ -57,20 +63,20 @@ class RepositoryAndServiceTests {
     @Test
     void vehiculeCrudIsComplete() {
         Agence agence = createAgence();
-        Vehicule vehicule = createVehicule(agence, "AT3-VEH-001");
+        VehiculeRequestDto vehiculeDto = createVehiculeDto(agence, "AT3-VEH-001", "206");
 
-        Vehicule created = vehiculeService.create(vehicule);
-        assertThat(created.getIdVehicule()).isNotNull();
-        assertThat(vehiculeService.findById(created.getIdVehicule()).getIdVehicule())
-                .isEqualTo(created.getIdVehicule());
+        VehiculeResponseDto created = vehiculeService.create(vehiculeDto);
+        assertThat(created.idVehicule()).isNotNull();
+        assertThat(vehiculeService.findById(created.idVehicule()).idVehicule())
+                .isEqualTo(created.idVehicule());
 
-        created.setModele("208");
-        Vehicule updated = vehiculeService.update(created.getIdVehicule(), created);
-        assertThat(updated.getModele()).isEqualTo("208");
-        assertThat(vehiculeService.findAll()).extracting(Vehicule::getIdVehicule)
-                .contains(created.getIdVehicule());
+        VehiculeRequestDto updateDto = createVehiculeDto(agence, "AT3-VEH-001", "208");
+        VehiculeResponseDto updated = vehiculeService.update(created.idVehicule(), updateDto);
+        assertThat(updated.modele()).isEqualTo("208");
+        assertThat(vehiculeService.findAll()).extracting(VehiculeResponseDto::idVehicule)
+                .contains(created.idVehicule());
 
-        Long vehiculeId = created.getIdVehicule();
+        Long vehiculeId = created.idVehicule();
         vehiculeService.deleteById(vehiculeId);
         assertThatThrownBy(() -> vehiculeService.findById(vehiculeId))
                 .isInstanceOf(ResourceNotFoundException.class);
@@ -79,7 +85,9 @@ class RepositoryAndServiceTests {
     @Test
     void contratCrudIsComplete() {
         Agence agence = createAgence();
-        Vehicule vehicule = vehiculeService.create(createVehicule(agence, "AT3-CON-001"));
+        VehiculeResponseDto vehiculeDto = vehiculeService.create(
+                createVehiculeDto(agence, "AT3-CON-001", "206"));
+        Vehicule vehicule = vehiculeRepository.findById(vehiculeDto.idVehicule()).orElseThrow();
         Client client = createClient();
 
         Reservation reservation = new Reservation();
@@ -133,15 +141,17 @@ class RepositoryAndServiceTests {
         return clientRepository.save(client);
     }
 
-    private Vehicule createVehicule(Agence agence, String immatriculation) {
-        Vehicule vehicule = new Vehicule();
-        vehicule.setImmatriculation(immatriculation);
-        vehicule.setMarque("Peugeot");
-        vehicule.setModele("206");
-        vehicule.setCategorie(CategorieVehicule.CITADINE);
-        vehicule.setTarifJournalier(new BigDecimal("120.00"));
-        vehicule.setStatut(StatutVehicule.DISPONIBLE);
-        vehicule.setAgence(agence);
-        return vehicule;
+    private VehiculeRequestDto createVehiculeDto(
+            Agence agence,
+            String immatriculation,
+            String modele) {
+        return new VehiculeRequestDto(
+                immatriculation,
+                "Peugeot",
+                modele,
+                CategorieVehicule.CITADINE,
+                new BigDecimal("120.00"),
+                StatutVehicule.DISPONIBLE,
+                agence.getIdAgence());
     }
 }

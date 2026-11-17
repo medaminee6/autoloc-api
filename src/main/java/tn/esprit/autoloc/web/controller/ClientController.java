@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,15 +17,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import tn.esprit.autoloc.domain.Client;
 import tn.esprit.autoloc.service.IClientService;
+import tn.esprit.autoloc.web.dto.ClientRequestDto;
+import tn.esprit.autoloc.web.dto.ClientResponseDto;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/clients")
 @RequiredArgsConstructor
-@Tag(name = "Clients", description = "Gestion des clients AutoLoc")
+@Tag(name = "Clients", description = "Gestion des clients AutoLoc avec DTO")
 public class ClientController {
 
     private final IClientService clientService;
@@ -32,7 +34,7 @@ public class ClientController {
     @Operation(summary = "Lister les clients")
     @ApiResponse(responseCode = "200", description = "Liste des clients retournee")
     @GetMapping
-    public List<Client> findAll() {
+    public List<ClientResponseDto> findAll() {
         return clientService.findAll();
     }
 
@@ -42,7 +44,8 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client introuvable")
     })
     @GetMapping("/{id}")
-    public Client findById(@Parameter(description = "Identifiant du client") @PathVariable Long id) {
+    public ClientResponseDto findById(
+            @Parameter(description = "Identifiant du client") @PathVariable Long id) {
         return clientService.findById(id);
     }
 
@@ -53,8 +56,8 @@ public class ClientController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Client create(@RequestBody Client client) {
-        return clientService.create(client);
+    public ClientResponseDto create(@Valid @RequestBody ClientRequestDto clientDto) {
+        return clientService.create(clientDto);
     }
 
     @Operation(summary = "Modifier un client")
@@ -64,10 +67,10 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client introuvable")
     })
     @PutMapping("/{id}")
-    public Client update(
+    public ClientResponseDto update(
             @Parameter(description = "Identifiant du client") @PathVariable Long id,
-            @RequestBody Client client) {
-        return clientService.update(id, client);
+            @Valid @RequestBody ClientRequestDto clientDto) {
+        return clientService.update(id, clientDto);
     }
 
     @Operation(summary = "Supprimer un client")

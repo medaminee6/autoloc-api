@@ -387,7 +387,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"{{$randomInt}}-TUN-26\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 120.00,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": { \"idAgence\": {{vehiculeAgenceId}} }\n}"
+              "raw": "{\n  \"immatriculation\": \"{{$randomInt}}-TUN-26\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 120.00,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": {{vehiculeAgenceId}}\n}"
             },
             "url": "{{baseUrl}}/vehicules"
           },
@@ -449,7 +449,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"{{$randomInt}}-TUN-26\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio V\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 135.00,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": { \"idAgence\": {{vehiculeAgenceId}} }\n}"
+              "raw": "{\n  \"immatriculation\": \"{{$randomInt}}-TUN-26\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio V\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 135.00,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": {{vehiculeAgenceId}}\n}"
             },
             "url": "{{baseUrl}}/vehicules/{{vehiculeId}}"
           },
@@ -477,7 +477,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"BAD-TARIF\",\n  \"marque\": \"Test\",\n  \"modele\": \"Test\",\n  \"categorie\": \"SUV\",\n  \"tarifJournalier\": -1,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": { \"idAgence\": {{vehiculeAgenceId}} }\n}"
+              "raw": "{\n  \"immatriculation\": \"BAD-TARIF\",\n  \"marque\": \"Test\",\n  \"modele\": \"Test\",\n  \"categorie\": \"SUV\",\n  \"tarifJournalier\": -1,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": {{vehiculeAgenceId}}\n}"
             },
             "url": "{{baseUrl}}/vehicules"
           },
